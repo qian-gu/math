@@ -1,0 +1,37 @@
+CAPI=2:
+
+name: qian-gu:math:mult_bw:0.1.0
+
+description: A booth-wallace multiplier
+
+filesets:
+  rtl:
+    files:
+      - include/math_pkg.svh : {is_include_file: true, include_path: include}
+      - rtl/mbcodec.sv
+      - rtl/wallace_tree.sv
+      - rtl/cla.sv
+      - rtl/mult_bw.sv
+    file_type: systemVerilogSource
+
+  dv:
+    files:
+      - dv/tb_mult_bw.sv
+    file_type: systemVerilogSource
+
+targets:
+  default: &default
+    filesets:
+      - rtl
+
+  sim:
+    <<: *default
+    description: Simulate the multiplier
+    default_tool: icarus
+    toplevel: tb_mult_bw
+    filesets_append:
+      - dv
+    tools:
+      icarus:
+        iverilog_options:
+          - -g2012

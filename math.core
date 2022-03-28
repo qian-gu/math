@@ -1,0 +1,25 @@
+CAPI=2:
+
+name: qian-gu:math::0.1.0
+
+description: A math library for digital front-end IC
+
+filesets:
+  rtl:
+    files:
+      - include/math_pkg.svh : {is_include_file: true, include_path: include}
+      - rtl/mbcodec.sv
+      - rtl/wallace_tree.sv
+      - rtl/cla.sv
+      - rtl/mult_bw.sv
+    file_type: systemVerilogSource
+
+  dv:
+    files:
+      - dv/tb_mult_bw.sv
+    file_type: systemVerilogSource
+
+targets:
+  default: &default
+    filesets:
+      - rtl
