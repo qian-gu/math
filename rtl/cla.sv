@@ -15,8 +15,7 @@ module cla #(
 ) (
   input  [DW-1 : 0] a_i,
   input  [DW-1 : 0] b_i,
-  output [DW-1 : 0] s_o,
-  output            c_o
+  output [DW-1 : 0] s_o
 );
 
   logic [DW/4 : 0] c;

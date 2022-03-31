@@ -21,28 +21,41 @@ module mult_bw
   output logic [C_DW-1 : 0] c_o
 );
 
+  localparam M_DW = (A_DW < B_DW) ? B_DW : A_DW;
   localparam N_DW = (A_DW < B_DW) ? A_DW : B_DW;
   localparam HALF = N_DW/2;
 
-  logic [HALF : 0][C_DW-1 : 0] pp;
-  logic [C_DW-1 : 0]           sum;
-  logic [C_DW-1 : 0]           carry;
+  logic [M_DW   : -1]          m;
+  logic [N_DW-1 : -1]          n;
 
-  mbcodec #(
-    .A_DW(A_DW),
-    .B_DW(B_DW)
+  // select multiplicand(m) and multiplier(n), convert a*b ==> m*n,
+  // `n` has narrower data width for less partial product
+  // 1) A_DW < B_DW: swith a and b position, result in m = b, n = a
+  // 2) A_DW >= B_DW: do not switch, so m = a, n = b
+  assign m = (M_DW == A_DW) ? {a_i[A_DW-1], a_i, 1'b0} : {b_i[B_DW-1], b_i, 1'b0};
+  assign n = (N_DW == B_DW) ? {b_i, 1'b0} : {a_i, 1'b0};
+
+  logic [HALF   : 0][C_DW-1 : 0] pp;
+  logic [C_DW-1 : 0]             sum;
+  logic [C_DW-1 : 0]             carry;
+
+  // swith between {mbcodec_i, mbcodec_ii, mbcodec_iii, mbcodec_iv} for different MBE
+  mbcodec_iv #(
+    .M_DW(M_DW),
+    .N_DW(N_DW)
   ) MBCODEC (
-    .a_i(a_i),
-    .b_i(b_i),
+    .m_i (m),
+    .n_i (n),
     .pp_o(pp)
   );
 
   // wallace_tree
   wallace_tree #(
     .DW(C_DW),
-    .N (HALF+1)
+    .N (HALF+1),
+    .PP_OPT(1)  // NOTE: set 1 if using mbcodec_iv, else 0
   ) WALLACE_TREE (
-    .add_i(pp),
+    .add_i  (pp),
     .sum_o  (sum),
     .carry_o(carry)
   );
@@ -52,8 +65,7 @@ module mult_bw
   ) CLA (
     .a_i(sum),
     .b_i(carry),
-    .s_o(c_o),
-    .c_o()
+    .s_o(c_o)
   );
 
 endmodule
