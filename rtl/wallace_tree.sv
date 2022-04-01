@@ -12,16 +12,16 @@
 //=============================================================================
 module wallace_tree #(
   parameter DW = 16,
-  parameter N  = 5,
+  parameter PP = 5,
   parameter PP_OPT = 0
 ) (
-  input  [N-1 : 0][DW-1 : 0] add_i,
-  output          [DW-1 : 0] sum_o,
-  output          [DW-1 : 0] carry_o
+  input  [PP-1 : 0][DW-1 : 0] add_i,
+  output           [DW-1 : 0] sum_o,
+  output           [DW-1 : 0] carry_o
 );
 
   localparam HALF = DW/2; // original bit width of multiplicand
-  localparam LEVEL = N-2; // number of compressor32
+  localparam LEVEL = PP-2; // number of compressor32
 
   logic [LEVEL-1 : 0][DW-1 : 0] psum;
   logic [LEVEL-1 : 0][DW-1 : 0] carry;

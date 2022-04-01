@@ -23,10 +23,10 @@ module mult_bw
 
   localparam M_DW = (A_DW < B_DW) ? B_DW : A_DW;
   localparam N_DW = (A_DW < B_DW) ? A_DW : B_DW;
-  localparam HALF = N_DW/2;
+  localparam PP = (N_DW%2 == 1) ? (N_DW/2 + 2) : (N_DW/2 + 1);
 
-  logic [M_DW   : -1]          m;
-  logic [N_DW-1 : -1]          n;
+  logic [M_DW   : -1] m;
+  logic [N_DW-1 : -1] n;
 
   // select multiplicand(m) and multiplier(n), convert a*b ==> m*n,
   // `n` has narrower data width for less partial product
@@ -35,7 +35,7 @@ module mult_bw
   assign m = (M_DW == A_DW) ? {a_i[A_DW-1], a_i, 1'b0} : {b_i[B_DW-1], b_i, 1'b0};
   assign n = (N_DW == B_DW) ? {b_i, 1'b0} : {a_i, 1'b0};
 
-  logic [HALF   : 0][C_DW-1 : 0] pp;
+  logic [PP-1   : 0][C_DW-1 : 0] pp;  // partial product
   logic [C_DW-1 : 0]             sum;
   logic [C_DW-1 : 0]             carry;
 
@@ -52,7 +52,7 @@ module mult_bw
   // wallace_tree
   wallace_tree #(
     .DW(C_DW),
-    .N (HALF+1),
+    .PP(PP),
     .PP_OPT(1)  // NOTE: set 1 if using mbcodec_iv, else 0
   ) WALLACE_TREE (
     .add_i  (pp),
