@@ -7,7 +7,7 @@ description: A booth-wallace multiplier
 filesets:
   rtl:
     files:
-      - include/math_pkg.svh : {is_include_file: true, include_path: include}
+      - rtl/math_pkg.svh
       - rtl/mbcodec.sv
       - rtl/wallace_tree.sv
       - rtl/cla.sv
@@ -23,6 +23,7 @@ targets:
   default: &default
     filesets:
       - rtl
+    toplevel: mult_bw
 
   sim:
     <<: *default

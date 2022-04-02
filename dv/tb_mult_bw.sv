@@ -23,10 +23,13 @@ module tb_mult_bw;
   parameter MAX = 2**(A_DW+B_DW);  // iterate all situation
 
   // simulation setting up
-  logic signed  [A_DW-1 : 0]      a_i;
-  logic signed  [B_DW-1 : 0]      b_i;
-  logic signed  [A_DW+B_DW-1 : 0] c_o;
-  logic signed  [A_DW+B_DW-1 : 0] c;
+  logic                    tc_mode_i;
+  logic  [A_DW-1 : 0]      a_i;
+  logic  [B_DW-1 : 0]      b_i;
+  logic  [A_DW+B_DW-1 : 0] c_o;
+  logic  [A_DW+B_DW-1 : 0] c;
+  logic  [A_DW+B_DW-1 : 0] c_s;
+  logic  [A_DW+B_DW-1 : 0] c_u;
 
   always_ff @(posedge clk or negedge rst_n) begin
     if (!rst_n) cnt <= 0;
@@ -42,16 +45,18 @@ module tb_mult_bw;
     end
   end
 
-  assign c = a_i * b_i;
+  assign c_s = $signed(a_i) * $signed(b_i);
+  assign c_u = $unsigned(a_i) * $unsigned(b_i);
+  assign c = tc_mode_i ? c_s : c_u;
 
   always_ff @(posedge clk or negedge rst_n) begin
-    if (!rst_n) a_i <= -128;
+    if (!rst_n) a_i <= '0;
     else a_i <= a_i + 1;
   end
 
   always_ff @(posedge clk or negedge rst_n) begin
-    if (!rst_n) b_i <= -128;
-    else if (a_i == 127) b_i <= b_i + 1;
+    if (!rst_n) b_i <= '0;
+    else if (a_i == '1) b_i <= b_i + 1;
   end
 
   mult_bw #(
@@ -67,8 +72,9 @@ module tb_mult_bw;
     $dumpvars;
     clk = 1;
     rst_n = 0;
-    // a_i = 0;
-    // b_i = 0;
+    tc_mode_i = 1;
+    a_i = 0;
+    b_i = 0;
     #(2*PERIOD);
     rst_n = 1;
 

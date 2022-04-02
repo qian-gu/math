@@ -3,8 +3,7 @@
 // Author        : Qian Gu
 // Email         : guqian110@gmail.com
 // Created on    : 2022-03-28 02:08:25 PM
-// Last Modified : 2022-03-28 02:18:42 PM
-// Revision      : 0.1.0
+// Last Modified : 2022-04-02 09:38:19 PM
 //
 // Description   : carry look-ahead adder
 //
@@ -21,7 +20,7 @@ module cla #(
   logic [DW/4 : 0] c;
   // break down into 4bit cla block
   assign c[0] = 1'b0;
-  for (genvar i = 0; i < DW/4; i++) begin
+  for (genvar i = 0; i < DW/4; i++) begin : l_assemble_cla4
     assign {c[i+1], s_o[4*i +: 4]} = cla_4b(a_i[4*i +: 4], b_i[4*i +: 4], c[i]);
   end
 
