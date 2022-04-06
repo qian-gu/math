@@ -59,9 +59,12 @@ module tb_mult_bw;
     else if (a_i == '1) b_i <= b_i + 1;
   end
 
+  import math_pkg::*;
+
   mult_bw #(
     .A_DW(A_DW),
-    .B_DW(B_DW)
+    .B_DW(B_DW),
+    .MBE (MBE_IV)
   ) MULT_BW (
     .*
   );

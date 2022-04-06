@@ -13,6 +13,7 @@ module mult_bw
 #(
   parameter int unsigned A_DW = 8,
   parameter int unsigned B_DW = 8,
+  parameter mbe_e        MBE  = MBE_IV,
   // generated parameter
   parameter int unsigned C_DW = A_DW + B_DW
 ) (
@@ -45,32 +46,58 @@ module mult_bw
   logic [C_DW-1 : 0]             carry;
   logic                          pp_opt; // pp optimize
 
-`ifdef MATH_MULT_USE_MBE_IV
-  localparam USE_MBE_IV = 1;
-`else
-  localparam USE_MBE_IV = 0;
-`endif
-
   // swith between {mbcodec_i, mbcodec_ii, mbcodec_iii, mbcodec_iv} for different MBE
-`ifdef MATH_MULT_USE_MBE_IV
-  mbcodec_iv #(
-`elsif MATH_MULT_USE_MBE_III
-  mbcodec_iii #(
-`elsif MATH_MULT_USE_MBE_II
-  mbcodec_ii #(
-`elsif MATH_MULT_USE_MBE_I
-  mbcodec_i #(
-`endif
-    .M_DW(M_DW),
-    .N_DW(N_DW)
-  ) MBCODEC (
-    .tc_mode_i,
-    .m_i (m),
-    .n_i (n),
-    .pp_o(pp)
-  );
+  if (MBE == MBE_IV) begin : l_inst_mbe_iv
 
-  assign pp_opt = (USE_MBE_IV) & (tc_mode_i | ((tc_mode_i == 0) & ~n[N_DW-1]));
+    mbcodec_iv #(
+      .M_DW(M_DW),
+      .N_DW(N_DW)
+    ) MBCODEC_IV (
+      .tc_mode_i,
+      .m_i (m),
+      .n_i (n),
+      .pp_o(pp)
+    );
+
+  end else if (MBE == MBE_III) begin : l_inst_mbe_iii
+
+    mbcodec_iii #(
+      .M_DW(M_DW),
+      .N_DW(N_DW)
+    ) MBCODEC_III (
+      .tc_mode_i,
+      .m_i (m),
+      .n_i (n),
+      .pp_o(pp)
+    );
+
+  end else if (MBE == MBE_II) begin : l_inst_mbe_ii
+
+    mbcodec_ii #(
+      .M_DW(M_DW),
+      .N_DW(N_DW)
+    ) MBCODEC_II (
+      .tc_mode_i,
+      .m_i (m),
+      .n_i (n),
+      .pp_o(pp)
+    );
+
+  end else if (MBE == MBE_I) begin : l_inst_mbe_i
+
+    mbcodec_i #(
+      .M_DW(M_DW),
+      .N_DW(N_DW)
+    ) MBCODEC_I (
+      .tc_mode_i,
+      .m_i (m),
+      .n_i (n),
+      .pp_o(pp)
+    );
+
+  end
+
+  assign pp_opt = (MBE == MBE_IV) & (tc_mode_i | ((tc_mode_i == 0) & ~n[N_DW-1]));
 
   // wallace_tree
   wallace_tree #(
