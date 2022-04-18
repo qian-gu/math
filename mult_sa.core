@@ -1,35 +1,31 @@
 CAPI=2:
 
-name: qian-gu:math:mult_bw:0.1.0
+name: qian-gu:math:mult_sa:0.1.0
 
-description: A booth-wallace multiplier
+description: A shift-accumulate multiplier
 
 filesets:
   rtl:
     files:
-      - rtl/math_pkg.sv
-      - rtl/mbcodec.sv
-      - rtl/wallace_tree.sv
-      - rtl/cla.sv
-      - rtl/mult_bw.sv
+      - rtl/mult_sa.sv
     file_type: systemVerilogSource
 
   dv:
     files:
-      - dv/tb_mult_bw.sv
+      - dv/tb_mult_sa.sv
     file_type: systemVerilogSource
 
 targets:
   default: &default
     filesets:
       - rtl
-    toplevel: mult_bw
+    toplevel: mult_sa
 
   sim:
     <<: *default
     description: Simulate the multiplier
     default_tool: icarus
-    toplevel: tb_mult_bw
+    toplevel: tb_mult_sa
     filesets_append:
       - dv
     tools:

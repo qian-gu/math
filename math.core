@@ -7,7 +7,7 @@ description: A math library for digital front-end IC
 filesets:
   rtl:
     files:
-      - rtl/math_pkg.svh
+      - rtl/math_pkg.sv
       - rtl/mbcodec.sv
       - rtl/wallace_tree.sv
       - rtl/cla.sv

@@ -40,7 +40,9 @@ module tb_mult_bw;
         $finish;
       end
     end else if (cnt == MAX) begin
-      $display("Simulation finshed!");
+      $display("******************************");
+      $display("Simulation Finsh Successfully!");
+      $display("******************************");
       $finish;
     end
   end
@@ -71,7 +73,6 @@ module tb_mult_bw;
 
   initial begin
     $dumpfile("sim.vcd");
-    // $dumpvars(0, U_COUNTER);
     $dumpvars;
     clk = 1;
     rst_n = 0;

@@ -30,15 +30,10 @@ module wallace_tree #(
   for (genvar l = 0; l < LEVEL; l++) begin : l_compress
     if (l == 0) begin : l_compress_1st
       // compress
-      for (genvar i = 0; i < DW; i++) begin
-        assign {psum[l][i], carry[l][i]} = compressor32(add_i[0][i], add_i[1][i], add_i[2][i]);
-      end
+      assign {psum[l], carry[l]} = compressor32(add_i[0], add_i[1], add_i[2]);
     end else begin : l_compress_others
       // compress
-      for (genvar i = 0; i < DW; i++) begin
-        assign {psum[l][i], carry[l][i]} = compressor32(psum[l-1][i], carry_shift[l-1][i],
-                                                        add_i[l+2][i]);
-      end
+      assign {psum[l], carry[l]} = compressor32(psum[l-1], carry_shift[l-1], add_i[l+2]);
     end
     // right shift carry 1bit for next level
     assign carry_shift[l] = carry[l] << 1;
@@ -49,12 +44,15 @@ module wallace_tree #(
   assign carry_o = pp_opt_i ? carry_shift[LEVEL-2] : carry_shift[LEVEL-1];
 
 
-  function automatic logic [1 : 0] compressor32(logic a, logic b, logic c);
+  function automatic logic [2*DW-1 : 0] compressor32(logic [DW-1 : 0] a, logic [DW-1 : 0] b,
+                                                     logic [DW-1 : 0] c);
 
-    logic x;
-    logic y;
-    x = a ^ b ^ c;
-    y = (a & b) | ((a ^ b) & c);
+    logic [DW-1 : 0] x;
+    logic [DW-1 : 0] y;
+    for (int i = 0; i < DW; i++) begin : l_compress
+      x[i] = a[i] ^ b[i] ^ c[i];
+      y[i] = (a[i] & b[i]) | ((a[i] ^ b[i]) & c[i]);
+    end
     return {x, y};
 
   endfunction
