@@ -3,39 +3,37 @@
 module tb_mult_div;
 
   // clock
-  parameter FREQ = 1_000_000;
-
-  localparam PERIOD = 1_000_000_000 / FREQ;
+  localparam FREQ        = 1_000_000;
+  localparam PERIOD      = 1_000_000_000 / FREQ;
   localparam HALF_PERIOD = PERIOD / 2;
 
   logic clk_i;
   logic rst_ni;
 
-
   always #(HALF_PERIOD) clk_i = ~clk_i;
 
   // DUT parameter
-  parameter DW = 8;
+  parameter InDw = 8;
 
   // simulation parameter
-  parameter MAX = 2**(2*DW);  // iterate all situation
+  parameter MAX = 2**(2*InDw);  // iterate all situation
 
   // simulation setting up
-  logic [2*DW : 0]   cnt;
-  logic [1 : 0]      tc_mode_i;
-  logic              operator_i;
-  logic              en_pi;
-  logic [DW-1 : 0]   a_i;
-  logic [DW-1 : 0]   b_i;
-  logic              c_vld_o;
-  logic              busy_o;
-  logic              div_by_zero_o;
-  logic              div_overflow_o;
-  logic [2*DW-1 : 0] c_o;
-  logic [2*DW-1 : 0] mult_c;
-  logic [DW-1   : 0] quotient;
-  logic [DW-1   : 0] remainder;
-  logic [2*DW-1 : 0] div_c;
+  logic [2*InDw : 0]   cnt;
+  logic [1 : 0]        tc_mode_i;
+  logic                operator_i;
+  logic                en_pi;
+  logic [InDw-1 : 0]   a_i;
+  logic [InDw-1 : 0]   b_i;
+  logic                c_valid_o;
+  logic                busy_o;
+  logic                div_by_zero_o;
+  logic                div_overflow_o;
+  logic [2*InDw-1 : 0] c_o;
+  logic [2*InDw-1 : 0] mult_c;
+  logic [InDw-1 : 0]   quotient;
+  logic [InDw-1 : 0]   remainder;
+  logic [2*InDw-1 : 0] div_c;
 
   logic init;
   logic init_q;
@@ -50,14 +48,14 @@ module tb_mult_div;
 
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) en_pi <= '0;
-    else en_pi <= init_p | c_vld_o;
+    else en_pi <= init_p | c_valid_o;
   end
 
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) cnt <= 0;
     else if (cnt < MAX) begin
       if (operator_i == 1'b0) begin  // mult
-        if (c_vld_o) begin
+        if (c_valid_o) begin
           cnt <= cnt + 1;
           if (mult_c !== c_o) begin
             $error("Error! a * b = %d * %d = %d != golden %d", a_i, b_i, c_o, mult_c);
@@ -65,7 +63,7 @@ module tb_mult_div;
           end
         end
       end else begin  // div
-        if (c_vld_o & ~div_overflow_o) begin
+        if (c_valid_o & ~div_overflow_o) begin
           cnt <= cnt + 1;
           if (divide_by_0 ^ div_by_zero_o) begin
             $error("Error! divde-by-0 wrong!");
@@ -141,16 +139,16 @@ module tb_mult_div;
 
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) a_i <= '0;
-    else if (c_vld_o) a_i <= a_i + 1;
+    else if (c_valid_o) a_i <= a_i + 1;
   end
 
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) b_i <= '0;
-    else if (c_vld_o & (a_i == '1)) b_i <= b_i + 1;
+    else if (c_valid_o & (a_i == '1)) b_i <= b_i + 1;
   end
 
   mult_div #(
-    .DW(DW)
+    .InDw(InDw)
   ) MULT_DIV (
     .*
   );

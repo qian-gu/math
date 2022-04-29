@@ -3,24 +3,25 @@
 // Author        : Qian Gu
 // Email         : guqian110@gmail.com
 // Created on    : 2022-03-28 02:08:25 PM
-// Last Modified : 2022-04-02 09:38:19 PM
+// Last Modified : 2022-04-21 10:55:11 AM
 //
 // Description   : carry look-ahead adder
 //
 //
 //=============================================================================
 module cla #(
-  parameter DW = 8
+  parameter int unsigned Dw = 8
 ) (
-  input  [DW-1 : 0] a_i,
-  input  [DW-1 : 0] b_i,
-  output [DW-1 : 0] s_o
+  input  logic [Dw-1 : 0] a_i,
+  input  logic [Dw-1 : 0] b_i,
+  output logic [Dw-1 : 0] s_o
 );
 
-  logic [DW/4 : 0] c;
+  logic [Dw/4 : 0] c;
+
   // break down into 4bit cla block
   assign c[0] = 1'b0;
-  for (genvar i = 0; i < DW/4; i++) begin : l_assemble_cla4
+  for (genvar i = 0; i < Dw/4; i++) begin : l_assemble_cla4
     assign {c[i+1], s_o[4*i +: 4]} = cla_4b(a_i[4*i +: 4], b_i[4*i +: 4], c[i]);
   end
 
@@ -43,12 +44,10 @@ module cla #(
 
   endfunction
 
-  // assertion
-
 // synopsys translate_off
 `ifdef CLA_CHECK_OFF
 
-  initial assert (DW%4 == 0) else $fatal("[CLA] %m DW = %d can not be divided by 4!", DW);
+  initial assert (Dw%4 == 0) else $fatal("[CLA] %m Dw = %d can not be divided by 4!", Dw);
 
 `endif
 // synopsys translate_on

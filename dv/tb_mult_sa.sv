@@ -3,35 +3,33 @@
 module tb_mult_sa;
 
   // clock
-  parameter FREQ = 1_000_000;
-
-  localparam PERIOD = 1_000_000_000 / FREQ;
+  localparam FREQ        = 1_000_000;
+  localparam PERIOD      = 1_000_000_000 / FREQ;
   localparam HALF_PERIOD = PERIOD / 2;
 
   logic clk_i;
   logic rst_ni;
 
-
   always #(HALF_PERIOD) clk_i = ~clk_i;
 
   // DUT parameter
-  parameter A_DW = 8;
-  parameter B_DW = 4;
-  parameter OPT_BW = 0;
+  parameter ADw = 8;
+  parameter BDw = 4;
+  parameter OptBw = 0;
 
   // simulation parameter
-  parameter MAX = 2**(A_DW+B_DW);  // iterate all situation
+  parameter MAX = 2**(ADw+BDw);  // iterate all situation
 
   // simulation setting up
-  logic [A_DW+B_DW : 0]   cnt;
-  logic [1 : 0]           tc_mode_i;
-  logic                   en_pi;
-  logic [A_DW-1 : 0]      a_i;
-  logic [B_DW-1 : 0]      b_i;
-  logic                   c_vld_o;
-  logic                   busy_o;
-  logic [A_DW+B_DW-1 : 0] c_o;
-  logic [A_DW+B_DW-1 : 0] c;
+  logic [ADw+BDw : 0]   cnt;
+  logic [1 : 0]         tc_mode_i;
+  logic                 en_pi;
+  logic [ADw-1 : 0]     a_i;
+  logic [BDw-1 : 0]     b_i;
+  logic                 c_valid_o;
+  logic                 busy_o;
+  logic [ADw+BDw-1 : 0] c_o;
+  logic [ADw+BDw-1 : 0] c;
 
   logic init;
   logic init_q;
@@ -46,13 +44,13 @@ module tb_mult_sa;
 
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) en_pi <= '0;
-    else en_pi <= init_p | c_vld_o;
+    else en_pi <= init_p | c_valid_o;
   end
 
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) cnt <= 0;
     else if (cnt < MAX) begin
-      if (c_vld_o) begin
+      if (c_valid_o) begin
         cnt <= cnt + 1;
         if (c !== c_o) begin
           $error("Error! a * b = %d * %d = %d != golden %d", a_i, b_i, c_o, c);
@@ -78,18 +76,18 @@ module tb_mult_sa;
 
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) a_i <= '0;
-    else if (c_vld_o) a_i <= a_i + 1;
+    else if (c_valid_o) a_i <= a_i + 1;
   end
 
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) b_i <= '0;
-    else if (c_vld_o & (a_i == '1)) b_i <= b_i + 1;
+    else if (c_valid_o & (a_i == '1)) b_i <= b_i + 1;
   end
 
   mult_sa #(
-    .A_DW(A_DW),
-    .B_DW(B_DW),
-    .OPT_BW(OPT_BW)
+    .ADw(ADw),
+    .BDw(BDw),
+    .OptBw(OptBw)
   ) MULT_SA (
     .*
   );

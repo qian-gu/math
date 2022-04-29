@@ -1,0 +1,35 @@
+CAPI=2:
+
+name: qian-gu:math:rnd_sat:0.1.0
+
+description: Integer arithmetic rounding and saturation
+
+filesets:
+  rtl:
+    files:
+      - rtl/math_pkg.sv
+      - rtl/rnd_sat.sv
+    file_type: systemVerilogSource
+
+  dv:
+    files:
+      - dv/tb_rnd_sat.sv
+    file_type: systemVerilogSource
+
+targets:
+  default: &default
+    filesets:
+      - rtl
+    toplevel: rnd_sat
+
+  sim:
+    <<: *default
+    description: Simulate the module
+    default_tool: icarus
+    toplevel: tb_rnd_sat
+    filesets_append:
+      - dv
+    tools:
+      icarus:
+        iverilog_options:
+          - -g2012

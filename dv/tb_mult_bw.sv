@@ -3,33 +3,31 @@
 module tb_mult_bw;
 
   // clock
-  parameter FREQ = 1_000_000;
-
-  localparam PERIOD = 1_000_000_000 / FREQ;
+  localparam FREQ        = 1_000_000;
+  localparam PERIOD      = 1_000_000_000 / FREQ;
   localparam HALF_PERIOD = PERIOD / 2;
 
   logic clk;
   logic rst_n;
-  logic [A_DW+B_DW : 0] cnt;
-
+  logic [ADw+BDw : 0] cnt;
 
   always #(HALF_PERIOD) clk = ~clk;
 
   // DUT parameter
-  parameter A_DW = 8;
-  parameter B_DW = 8;
+  parameter ADw = 8;
+  parameter BDw = 8;
 
   // simulation parameter
-  parameter MAX = 2**(A_DW+B_DW);  // iterate all situation
+  parameter MAX = 2**(ADw+BDw);  // iterate all situation
 
   // simulation setting up
-  logic                    tc_mode_i;
-  logic  [A_DW-1 : 0]      a_i;
-  logic  [B_DW-1 : 0]      b_i;
-  logic  [A_DW+B_DW-1 : 0] c_o;
-  logic  [A_DW+B_DW-1 : 0] c;
-  logic  [A_DW+B_DW-1 : 0] c_s;
-  logic  [A_DW+B_DW-1 : 0] c_u;
+  logic                  tc_mode_i;
+  logic  [ADw-1 : 0]     a_i;
+  logic  [BDw-1 : 0]     b_i;
+  logic  [ADw+BDw-1 : 0] c_o;
+  logic  [ADw+BDw-1 : 0] c;
+  logic  [ADw+BDw-1 : 0] c_s;
+  logic  [ADw+BDw-1 : 0] c_u;
 
   always_ff @(posedge clk or negedge rst_n) begin
     if (!rst_n) cnt <= 0;
@@ -64,8 +62,8 @@ module tb_mult_bw;
   import math_pkg::*;
 
   mult_bw #(
-    .A_DW(A_DW),
-    .B_DW(B_DW),
+    .ADw(ADw),
+    .BDw(BDw),
     .MBE (MBE_IV)
   ) MULT_BW (
     .*

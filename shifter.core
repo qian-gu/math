@@ -1,0 +1,35 @@
+CAPI=2:
+
+name: qian-gu:math:shifter:0.1.0
+
+description: A logic/arithmetic/barrel shifter
+
+filesets:
+  rtl:
+    files:
+      - rtl/math_pkg.sv
+      - rtl/shifter.sv
+    file_type: systemVerilogSource
+
+  dv:
+    files:
+      - dv/tb_shifter.sv
+    file_type: systemVerilogSource
+
+targets:
+  default: &default
+    filesets:
+      - rtl
+    toplevel: shifter
+
+  sim:
+    <<: *default
+    description: Simulate the shifter
+    default_tool: icarus
+    toplevel: tb_shifter
+    filesets_append:
+      - dv
+    tools:
+      icarus:
+        iverilog_options:
+          - -g2012
